@@ -3,22 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Seguridad en Cómputo | Sistema de Gestión de Roles y Permisos (RBAC)</title>
+  <title>Seguridad en Cómputo | Sistema de Gestión de Roles y Permisos</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <!-- Banner Superior de Estado de Seguridad y Encriptación -->
-  <header class="crypto-banner" role="banner">
-    <div>
-      <strong>SEGURIDAD EN CÓMPUTO</strong> — Control de Acceso Basado en Roles y Permisos (RBAC) en Red Intermedia OPNsense
-    </div>
-    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-      <span class="crypto-badge">BD: AES-256-GCM + Scrypt</span>
-      <span class="crypto-badge" id="net-crypto-status">Red: Cifrado E2E WebCrypto Activo</span>
-      <span class="crypto-badge">Respaldo: Automático 24h (USB/Externo)</span>
-    </div>
-  </header>
-
   <div id="toast-container" aria-live="polite"></div>
 
   <!-- ===================================================================== -->
@@ -26,15 +14,15 @@
   <!-- ===================================================================== -->
   <main id="auth-view" class="auth-wrapper">
     <section class="card" aria-label="Formulario de Autenticación">
-      <h2 style="margin-bottom:4px; color:#38bdf8;">Portal de Acceso Seguro</h2>
+      <h2 style="margin-bottom:4px; color:var(--text-primary);">Portal de Acceso</h2>
       <p style="font-size:13px; color:var(--text-secondary); margin-bottom:18px;">
-        Autenticación y Autorización Dinámica por Roles y Permisos con Encriptación de Datos Sensibles
+        Control de acceso basado en roles y gestión de usuarios
       </p>
 
       <div class="auth-tabs" role="tablist">
         <button type="button" class="auth-tab active" onclick="switchAuthTab('login')">Iniciar Sesión</button>
-        <button type="button" class="auth-tab" onclick="switchAuthTab('register')">Registrar Usuario</button>
-        <button type="button" class="auth-tab" onclick="switchAuthTab('recover')">Recuperar Contraseña (2FA)</button>
+        <button type="button" class="auth-tab" onclick="switchAuthTab('register')">Crear Cuenta</button>
+        <button type="button" class="auth-tab" onclick="switchAuthTab('recover')">Recuperar Contraseña</button>
       </div>
 
       <!-- TAB 1: INICIAR SESIÓN -->
@@ -47,38 +35,17 @@
           <label for="login-password">Contraseña</label>
           <input type="password" id="login-password" class="form-control" placeholder="••••••••" required />
         </div>
-        <button type="submit" class="btn btn-primary btn-block">Iniciar Sesión Segura</button>
-
-        <!-- Acceso Rápido para Demostración de los 3 Roles Predeterminados -->
-        <div class="demo-roles-box">
-          <span style="font-size:12px; color:var(--text-secondary); font-weight:600;">
-            Cuentas Predeterminadas para Demostración (1 Clic):
-          </span>
-          <div class="demo-roles-grid">
-            <button type="button" class="demo-role-btn" onclick="fillDemoLogin('admin@uni.edu.mx', 'Admin123!')">
-              <strong>1. Administrador</strong>
-              <span>Acceso total, Usuarios, Roles, Auditoría y Respaldos</span>
-            </button>
-            <button type="button" class="demo-role-btn" onclick="fillDemoLogin('editor@uni.edu.mx', 'Editor123!')">
-              <strong>2. Editor</strong>
-              <span>Crear, editar y eliminar contenidos (Sin gestión global)</span>
-            </button>
-            <button type="button" class="demo-role-btn" onclick="fillDemoLogin('usuario@uni.edu.mx', 'Usuario123!')">
-              <strong>3. Usuario Regular</strong>
-              <span>Solo lectura y visualización de contenidos</span>
-            </button>
-          </div>
-        </div>
+        <button type="submit" class="btn btn-primary btn-block">Iniciar Sesión</button>
       </form>
 
-      <!-- PASO 2FA DURANTE LOGIN (Oculto por defecto) -->
+      <!-- PASO DE VERIFICACIÓN DURANTE LOGIN (Oculto por defecto) -->
       <form id="form-2fa" class="hidden" onsubmit="handleVerify2FA(event)">
-        <div style="background:rgba(14,165,233,0.1); border:1px solid rgba(14,165,233,0.3); padding:12px; border-radius:8px; margin-bottom:14px;">
-          <strong style="color:#38bdf8; font-size:13px;">Verificación en Dos Pasos (2FA TOTP Requerida)</strong>
+        <div style="background:rgba(37,99,235,0.08); border:1px solid rgba(37,99,235,0.25); padding:12px; border-radius:8px; margin-bottom:14px;">
+          <strong style="color:var(--accent-primary); font-size:13px;">Código de Verificación</strong>
           <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;" id="2fa-challenge-msg"></p>
         </div>
         <div class="form-group">
-          <label for="login-2fa-code">Código TOTP de 6 dígitos</label>
+          <label for="login-2fa-code">Código de 6 dígitos</label>
           <input type="text" id="login-2fa-code" class="form-control" placeholder="123456" maxlength="6" required />
         </div>
         <div style="display:flex; gap:10px;">
@@ -105,42 +72,42 @@
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label for="reg-rfc">RFC (Se encripta en Red y BD con AES-256)</label>
+            <label for="reg-rfc">RFC</label>
             <input type="text" id="reg-rfc" class="form-control" placeholder="LOMM990115HDF" maxlength="13" required />
           </div>
           <div class="form-group">
-            <label for="reg-telefono">Teléfono Celular (Para SMS 2FA)</label>
+            <label for="reg-telefono">Teléfono</label>
             <input type="text" id="reg-telefono" class="form-control" placeholder="55-1234-5678" required />
           </div>
         </div>
         <div class="form-group">
-          <label for="reg-direccion">Dirección Fiscal (Se encripta en Red y BD con AES-256)</label>
+          <label for="reg-direccion">Dirección</label>
           <input type="text" id="reg-direccion" class="form-control" placeholder="Av. Politécnico #2500, CDMX" required />
         </div>
-        <button type="submit" class="btn btn-primary btn-block">Registrar Cuenta con Cifrado AES-256</button>
+        <button type="submit" class="btn btn-primary btn-block">Crear Cuenta</button>
       </form>
 
       <!-- TAB 3: RECUPERACIÓN DE CONTRASEÑA EN DOS PASOS (CORREO, SMS O TOKEN 2FA) -->
       <div id="form-recover" class="hidden">
         <form onsubmit="handleForgotPassword(event)" style="margin-bottom:18px; padding-bottom:16px; border-bottom:1px solid var(--border-color);">
-          <h4 style="font-size:14px; color:#38bdf8; margin-bottom:8px;">Paso 1: Solicitar Código de Verificación en Dos Pasos</h4>
+          <h4 style="font-size:14px; color:var(--text-primary); margin-bottom:8px;">Paso 1: Solicitar Código de Verificación</h4>
           <div class="form-group">
             <label for="rec-email">Correo Electrónico de tu Cuenta</label>
             <input type="email" id="rec-email" class="form-control" placeholder="admin@uni.edu.mx" required />
           </div>
           <div class="form-group">
-            <label for="rec-metodo">Método de Verificación en Dos Pasos</label>
+            <label for="rec-metodo">Método de Verificación</label>
             <select id="rec-metodo" class="form-control">
               <option value="EMAIL">1. Correo Electrónico (Código OTP de 6 dígitos)</option>
               <option value="SMS">2. Mensaje de Texto SMS al Teléfono Registrado</option>
               <option value="2FA_TOTP">3. Token Autenticador TOTP (Google Authenticator)</option>
             </select>
           </div>
-          <button type="submit" class="btn btn-secondary btn-block">Enviar / Generar Token de Verificación</button>
+          <button type="submit" class="btn btn-secondary btn-block">Enviar Código de Verificación</button>
         </form>
 
         <form onsubmit="handleResetPassword(event)">
-          <h4 style="font-size:14px; color:#34d399; margin-bottom:8px;">Paso 2: Verificar Token y Establecer Nueva Contraseña</h4>
+          <h4 style="font-size:14px; color:var(--text-primary); margin-bottom:8px;">Paso 2: Establecer Nueva Contraseña</h4>
           <div class="form-row">
             <div class="form-group">
               <label for="rec-codigo">Código / Token de 6 dígitos</label>
@@ -151,38 +118,10 @@
               <input type="password" id="rec-new-pass" class="form-control" placeholder="Nueva contraseña segura" required />
             </div>
           </div>
-          <button type="submit" class="btn btn-success btn-block">Verificar en 2 Pasos y Restablecer Contraseña</button>
+          <button type="submit" class="btn btn-success btn-block">Restablecer Contraseña</button>
         </form>
       </div>
     </section>
-
-    <!-- PANEL LATERAL: MONITOR DE TRÁNSITO DE RED CIFRADO Y BANDEJA OTP -->
-    <aside style="display:flex; flex-direction:column; gap:18px;">
-      <div class="card">
-        <h3 style="font-size:15px; color:#38bdf8; margin-bottom:6px;">
-          Monitor de Encriptación en Red (En Tránsito)
-        </h3>
-        <p style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">
-          Antes de enviar datos sensibles (Contraseña, RFC, Dirección) por la red hacia el servidor en la Red Intermedia OPNsense, el navegador los cifra con <strong>AES-256-GCM (WebCrypto API)</strong>:
-        </p>
-        <div id="network-payload-preview" class="cipher-code" style="max-width:100%; width:100%; padding:10px; min-height:68px;">
-          Esperando envío de paquete por red para mostrar payload cifrado...
-        </div>
-      </div>
-
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <h3 style="font-size:15px; color:#34d399;">Bandeja de Tokens 2FA (Correo / SMS)</h3>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="refreshSimulatedInbox()">Actualizar</button>
-        </div>
-        <p style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">
-          Para pruebas en el laboratorio sin salida SMTP externa, aquí se interceptan en vivo los códigos OTP enviados por Correo o SMS:
-        </p>
-        <div id="simulated-inbox-list" style="font-size:12px; color:var(--text-secondary);">
-          Aún no se han solicitado códigos de recuperación en esta sesión.
-        </div>
-      </div>
-    </aside>
   </main>
 
   <!-- ===================================================================== -->
@@ -216,7 +155,7 @@
           </li>
           <li id="nav-clientes">
             <button class="nav-btn" data-section="sec-clientes" onclick="showSection('sec-clientes')">
-              <span>Clientes (RFC/Dirección AES)</span>
+              <span>Clientes</span>
             </button>
           </li>
           <li id="nav-usuarios">
@@ -236,12 +175,12 @@
           </li>
           <li id="nav-respaldos">
             <button class="nav-btn" data-section="sec-respaldos" onclick="showSection('sec-respaldos')">
-              <span>Respaldos 24h (USB/Externo)</span>
+              <span>Respaldos</span>
             </button>
           </li>
           <li>
             <button class="nav-btn" data-section="sec-perfil" onclick="showSection('sec-perfil')">
-              <span>Mi Perfil, Contraseña y 2FA</span>
+              <span>Mi Perfil y Contraseña</span>
             </button>
           </li>
         </ul>
@@ -259,7 +198,7 @@
       <section id="sec-resumen" class="app-section">
         <div class="section-header">
           <div>
-            <h2>Panel de Control de Acceso Basado en Roles (RBAC)</h2>
+            <h2>Panel de Control de Acceso Basado en Roles</h2>
             <p style="font-size:13px; color:var(--text-secondary);">
               Verifica en vivo tus permisos efectivos y prueba el bloqueo de seguridad para acciones no autorizadas.
             </p>
@@ -270,32 +209,15 @@
         <div class="stats-grid">
           <div class="stat-card">
             <div class="label">Rol(es) Activo(s)</div>
-            <div class="value" id="stat-roles" style="font-size:18px; color:#38bdf8;">-</div>
+            <div class="value" id="stat-roles" style="font-size:18px; color:var(--accent-primary);">-</div>
           </div>
           <div class="stat-card">
-            <div class="label">Permisos Asignados</div>
-            <div class="value" id="stat-perms-count">0</div>
+            <div class="label">Tu RFC</div>
+            <div class="value" id="stat-user-rfc" style="font-size:17px; color:var(--text-primary);">-</div>
           </div>
           <div class="stat-card">
-            <div class="label">Tu RFC (Desencriptado)</div>
-            <div class="value" id="stat-user-rfc" style="font-size:17px; color:#34d399;">-</div>
-          </div>
-          <div class="stat-card">
-            <div class="label">Estado 2FA (Dos Pasos)</div>
+            <div class="label">Estado de Verificación</div>
             <div class="value" id="stat-user-2fa" style="font-size:17px;">-</div>
-          </div>
-        </div>
-
-        <div class="card" style="margin-bottom:20px;">
-          <h3 style="font-size:15px; margin-bottom:10px; color:#38bdf8;">Tus Permisos Efectivos en esta Sesión</h3>
-          <div id="user-permissions-badges" style="margin-bottom:14px;"></div>
-          <p style="font-size:12.5px; color:var(--text-secondary);">
-            <strong>Nota de Seguridad:</strong> El servidor valida cada petición HTTP contra la base de datos en tiempo real. Si un usuario sin permisos de escritura o administración intenta forzar una petición, el backend devuelve <code>HTTP 403 Forbidden</code> y registra la alerta en el Historial de Accesos y Auditoría.
-          </p>
-          <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
-            <button class="btn btn-warning btn-sm" onclick="simulateUnauthorizedAttempt()">
-              Probar Intento de Acceso a Ruta de Administración (Demostración de Control de Acceso)
-            </button>
           </div>
         </div>
       </section>
@@ -314,7 +236,7 @@
 
         <!-- Formulario Crear/Editar Documento -->
         <div id="doc-form-card" class="card hidden" style="margin-bottom:20px;">
-          <h3 id="doc-form-title" style="font-size:16px; margin-bottom:12px; color:#38bdf8;">Crear Documento Corporativo</h3>
+          <h3 id="doc-form-title" style="font-size:16px; margin-bottom:12px; color:var(--text-primary);">Crear Documento Corporativo</h3>
           <form onsubmit="handleSaveDoc(event)">
             <input type="hidden" id="doc-id" />
             <div class="form-row">
@@ -343,8 +265,7 @@
               <input type="text" id="doc-notas" class="form-control" placeholder="Ej. Credenciales de mantenimiento, IPs o claves internas" />
             </div>
             <div style="display:flex; gap:10px;">
-              <button type="submit" class="btn btn-success">Guardar Documento</button>
-              <button type="button" class="btn btn-secondary" onclick="closeDocModal()">Cancelar</button>
+              <button type="submit" class="btn btn-success">Guardar Documento</button>              <button type="button" class="btn btn-secondary" onclick="closeDocModal()">Cancelar</button>
             </div>
           </form>
         </div>
@@ -352,25 +273,25 @@
         <div id="documentos-list" style="display:grid; gap:14px;"></div>
       </section>
 
-      <!-- SECCIÓN 2: DIRECTORIO FISCAL DE CLIENTES (RFC Y DIRECCIÓN ENCRIPTADOS) -->
+      <!-- SECCIÓN 2: DIRECTORIO FISCAL DE CLIENTES -->
       <section id="sec-clientes" class="app-section hidden">
         <div class="section-header">
           <div>
-            <h2>Área 2: Directorio Fiscal de Clientes (Datos Encriptados AES-256)</h2>
+            <h2>Área 2: Directorio Fiscal de Clientes</h2>
             <p style="font-size:13px; color:var(--text-secondary);">
               Los campos sensibles (<strong>RFC</strong>, <strong>Dirección</strong>, <strong>Teléfono</strong> y <strong>Monto</strong>) viajan cifrados por la red y se almacenan encriptados en la Base de Datos.
             </p>
           </div>
           <div style="display:flex; gap:10px;">
             <button class="btn btn-secondary" onclick="toggleShowCiphertextClientes()">
-              Alternar Vista: Desencriptado / Cifrado en BD
+              Ver Cifrado / Desencriptado
             </button>
             <button id="btn-new-cliente" class="btn btn-primary" onclick="openClienteModal()">+ Registrar Cliente</button>
           </div>
         </div>
 
         <div id="cliente-form-card" class="card hidden" style="margin-bottom:20px;">
-          <h3 id="cliente-form-title" style="font-size:16px; margin-bottom:12px; color:#38bdf8;">Registrar Cliente</h3>
+          <h3 id="cliente-form-title" style="font-size:16px; margin-bottom:12px; color:var(--text-primary);">Registrar Cliente</h3>
           <form onsubmit="handleSaveCliente(event)">
             <input type="hidden" id="cli-id" />
             <div class="form-row">
@@ -385,7 +306,7 @@
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label>RFC (Encriptado AES-256 en BD y Red) *</label>
+                <label>RFC *</label>
                 <input type="text" id="cli-rfc" class="form-control" maxlength="13" required />
               </div>
               <div class="form-group">
@@ -395,20 +316,20 @@
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label>Teléfono (Encriptado AES-256)</label>
+                <label>Teléfono</label>
                 <input type="text" id="cli-telefono" class="form-control" required />
               </div>
               <div class="form-group">
-                <label>Monto de Contrato (Encriptado AES-256)</label>
+                <label>Monto de Contrato</label>
                 <input type="text" id="cli-monto" class="form-control" placeholder="$500,000.00 MXN" required />
               </div>
             </div>
             <div class="form-group">
-              <label>Dirección Fiscal Completa (Encriptada AES-256 en BD y Red) *</label>
+              <label>Dirección Fiscal *</label>
               <input type="text" id="cli-direccion" class="form-control" required />
             </div>
             <div style="display:flex; gap:10px;">
-              <button type="submit" class="btn btn-success">Guardar con Encriptación AES-256</button>
+              <button type="submit" class="btn btn-success">Guardar Cliente</button>
               <button type="button" class="btn btn-secondary" onclick="closeClienteModal()">Cancelar</button>
             </div>
           </form>
@@ -419,8 +340,8 @@
             <thead>
               <tr>
                 <th>Empresa / Contacto</th>
-                <th>RFC (Sensible)</th>
-                <th>Dirección Fiscal (Sensible)</th>
+                <th>RFC</th>
+                <th>Dirección Fiscal</th>
                 <th>Teléfono y Contrato</th>
                 <th>Acciones</th>
               </tr>
@@ -447,8 +368,8 @@
             <thead>
               <tr>
                 <th>ID / Usuario</th>
-                <th>RFC y Dirección (Desencriptados)</th>
-                <th>Roles Asignados (Marcar para Asignar / Revocar)</th>
+                <th>RFC y Dirección</th>
+                <th>Roles Asignados</th>
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
@@ -470,7 +391,7 @@
         </div>
 
         <div class="card" style="margin-bottom:22px;">
-          <h3 style="font-size:15px; color:#38bdf8; margin-bottom:10px;">Crear Nuevo Rol Personalizado</h3>
+          <h3 style="font-size:15px; color:var(--text-primary); margin-bottom:10px;">Crear Nuevo Rol Personalizado</h3>
           <form onsubmit="handleCreateRole(event)">
             <div class="form-row">
               <div class="form-group">
@@ -482,7 +403,7 @@
                 <input type="text" id="new-role-desc" class="form-control" placeholder="Acceso a lectura de auditoría y edición de clientes" required />
               </div>
             </div>
-            <button type="submit" class="btn btn-primary btn-sm">+ Crear Rol (Luego marca sus permisos abajo)</button>
+            <button type="submit" class="btn btn-primary btn-sm">+ Crear Rol</button>
           </form>
         </div>
 
@@ -502,7 +423,7 @@
         </div>
 
         <div class="auth-tabs" style="max-width:680px;">
-          <button class="auth-tab active" id="tab-btn-audit" onclick="switchLogTab('audit')">1. Registro de Auditoría (Acciones)</button>
+          <button class="auth-tab active" id="tab-btn-audit" onclick="switchLogTab('audit')">1. Registro de Auditoría</button>
           <button class="auth-tab" id="tab-btn-access" onclick="switchLogTab('access')">2. Historial de Accesos al Sistema</button>
           <button class="auth-tab" id="tab-btn-crypto" onclick="switchLogTab('crypto')">3. Inspector de Encriptación en BD</button>
         </div>
@@ -542,8 +463,8 @@
 
         <!-- Sub-vista 3: Inspector de Datos Encriptados en la Base de Datos -->
         <div id="subtab-crypto" class="card hidden">
-          <h3 style="font-size:16px; color:#34d399; margin-bottom:6px;">
-            Demostración en Vivo: Almacenamiento Cifrado en Base de Datos (AES-256-GCM y Scrypt)
+          <h3 style="font-size:16px; color:var(--text-primary); margin-bottom:6px;">
+            Almacenamiento Cifrado en Base de Datos
           </h3>
           <p style="font-size:13px; color:var(--text-secondary); margin-bottom:14px;">
             Esta vista muestra exactamente cómo se guardan los registros crudos dentro de las tablas <code>users</code> y <code>clientes</code> de la base de datos:
@@ -553,9 +474,9 @@
               <thead>
                 <tr>
                   <th>Usuario</th>
-                  <th>Hash de Contraseña en BD (Scrypt + Salt)</th>
-                  <th>RFC Cifrado en BD (AES-256-GCM)</th>
-                  <th>Dirección Cifrada en BD (AES-256-GCM)</th>
+                  <th>Hash de Contraseña en BD</th>
+                  <th>RFC Cifrado en BD</th>
+                  <th>Dirección Cifrada en BD</th>
                 </tr>
               </thead>
               <tbody id="inspector-users-tbody"></tbody>
@@ -564,11 +485,11 @@
         </div>
       </section>
 
-      <!-- SECCIÓN 6: RESPALDOS CADA 24 HORAS EN LOCALIDAD EXTERNA (USB / DISCO EXTRAÍBLE) -->
+      <!-- SECCIÓN 6: RESPALDOS AUTOMÁTICOS -->
       <section id="sec-respaldos" class="app-section hidden">
         <div class="section-header">
           <div>
-            <h2>Respaldos Automáticos Cada 24 Horas (Localidad Externa USB / Disco Extraíble)</h2>
+            <h2>Respaldos Automáticos Cada 24 Horas</h2>
             <p style="font-size:13px; color:var(--text-secondary);">
               El sistema respalda y encripta automáticamente la Base de Datos cada 24 horas y la almacena en una unidad externa segura.
             </p>
@@ -576,19 +497,19 @@
         </div>
 
         <div class="card" style="margin-bottom:20px;">
-          <h3 style="font-size:15px; color:#38bdf8; margin-bottom:10px;">Configuración de Localidad Externa Segura (USB o Disco Extraíble)</h3>
+          <h3 style="font-size:15px; color:var(--text-primary); margin-bottom:10px;">Configuración de Localidad Externa</h3>
           <div class="form-row">
             <div class="form-group">
-              <label>Ruta de Destino en Unidad Externa (USB / Disco Extraíble)</label>
+              <label>Ruta de Destino en Unidad Externa</label>
               <input type="text" id="backup-external-path" class="form-control" placeholder="E:\Respaldos_Seguridad_Uni" />
             </div>
             <div class="form-group">
-              <label>Unidades Detectadas en el Servidor (Clic para seleccionar USB)</label>
+              <label>Unidades Detectadas en el Servidor</label>
               <div id="detected-drives-box" style="display:flex; gap:8px; flex-wrap:wrap; padding-top:4px;"></div>
             </div>
           </div>
           <button class="btn btn-success" onclick="handleRunManualBackup()">
-            Ejecutar Respaldo Cifrado Ahora (Guardar en Localidad Externa)
+            Generar Respaldo
           </button>
         </div>
 
@@ -599,7 +520,7 @@
                 <th>Fecha y Hora</th>
                 <th>Archivo Cifrado</th>
                 <th>Tipo</th>
-                <th>Ruta Externa (USB / Disco)</th>
+                <th>Ruta Externa</th>
                 <th>Hash Integridad SHA-256</th>
                 <th>Descargar</th>
               </tr>
@@ -609,22 +530,22 @@
         </div>
       </section>
 
-      <!-- SECCIÓN 7: MI PERFIL, CAMBIO DE CONTRASEÑA EN SESIÓN ABIERTA Y 2FA -->
+      <!-- SECCIÓN 7: MI PERFIL, CAMBIO DE CONTRASEÑA EN SESIÓN ABIERTA -->
       <section id="sec-perfil" class="app-section hidden">
         <div class="section-header">
           <div>
-            <h2>Mi Cuenta: Cambio de Contraseña en Sesión Abierta y Configuración 2FA</h2>
+            <h2>Mi Cuenta: Datos Personales y Seguridad</h2>
             <p style="font-size:13px; color:var(--text-secondary);">
-              Administra tus datos sensibles encriptados, cambia tu contraseña actual y configura tu token de Verificación en Dos Pasos.
+              Administra tus datos de cuenta y cambia tu contraseña.
             </p>
           </div>
         </div>
 
         <div class="roles-grid">
-          <!-- Tarjeta 1: Cambio de Contraseña desde la misma aplicación al tener sesión abierta -->
+          <!-- Tarjeta 1: Cambio de Contraseña -->
           <div class="card">
-            <h3 style="font-size:16px; color:#38bdf8; margin-bottom:12px;">
-              Cambiar Contraseña (Con Sesión Abierta)
+            <h3 style="font-size:16px; color:var(--text-primary); margin-bottom:12px;">
+              Cambiar Contraseña
             </h3>
             <form onsubmit="handleChangePassword(event)">
               <div class="form-group">
@@ -639,10 +560,10 @@
             </form>
           </div>
 
-          <!-- Tarjeta 2: Datos Sensibles y Verificación en 2 Pasos (TOTP) -->
+          <!-- Tarjeta 2: Datos Personales y Código de Verificación -->
           <div class="card">
-            <h3 style="font-size:16px; color:#34d399; margin-bottom:12px;">
-              Datos Sensibles (AES-256) y Verificación en Dos Pasos (2FA)
+            <h3 style="font-size:16px; color:var(--text-primary); margin-bottom:12px;">
+              Datos Personales
             </h3>
             <form onsubmit="handleUpdateProfile(event)">
               <div class="form-group">
@@ -651,29 +572,29 @@
               </div>
               <div class="form-row">
                 <div class="form-group">
-                  <label>RFC (Encriptado en BD)</label>
+                  <label>RFC</label>
                   <input type="text" id="prof-rfc" class="form-control" required />
                 </div>
                 <div class="form-group">
-                  <label>Teléfono (Para SMS 2FA)</label>
+                  <label>Teléfono</label>
                   <input type="text" id="prof-telefono" class="form-control" required />
                 </div>
               </div>
               <div class="form-group">
-                <label>Dirección Fiscal (Encriptada en BD)</label>
+                <label>Dirección</label>
                 <input type="text" id="prof-direccion" class="form-control" required />
               </div>
               <div class="form-group" style="background:var(--bg-input); padding:10px; border-radius:8px; border:1px solid var(--border-highlight);">
-                <label class="perm-check-label" style="color:#f8fafc;">
+                <label class="perm-check-label" style="color:var(--text-primary);">
                   <input type="checkbox" id="prof-2fa-enabled" />
-                  <strong>Solicitar Código TOTP (Verificación en 2 Pasos) al Iniciar Sesión</strong>
+                  <strong>Solicitar código de verificación al iniciar sesión</strong>
                 </label>
                 <div style="font-size:12px; color:var(--text-secondary); margin-top:6px;">
-                  Secreto Base32 para Google Authenticator: <code id="prof-totp-secret" style="color:#38bdf8;">-</code><br/>
-                  Código TOTP vigente (30s): <strong id="prof-totp-current" style="color:#34d399; font-size:14px;">-</strong>
+                  Clave de autenticación: <code id="prof-totp-secret" style="color:var(--accent-primary);">-</code><br/>
+                  Código vigente: <strong id="prof-totp-current" style="color:var(--accent-primary); font-size:14px;">-</strong>
                 </div>
               </div>
-              <button type="submit" class="btn btn-success btn-block">Guardar Perfil y Configuración 2FA</button>
+              <button type="submit" class="btn btn-success btn-block">Guardar Cambios</button>
             </form>
           </div>
         </div>

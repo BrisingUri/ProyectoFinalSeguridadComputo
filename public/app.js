@@ -248,21 +248,22 @@ async function handleResetPassword(e) {
 }
 
 async function refreshSimulatedInbox() {
+  const box = document.getElementById('simulated-inbox-list');
+  if (!box) return;
   try {
     const res = await apiFetch('/api/auth/simulated-inbox');
-    const box = document.getElementById('simulated-inbox-list');
     if (!res.messages || res.messages.length === 0) {
       box.innerHTML = 'Aún no se han solicitado códigos de recuperación en esta sesión.';
       return;
     }
     box.innerHTML = res.messages.slice(0, 4).map(m => `
-      <div style="background:#0f172a; border:1px solid #334155; padding:8px 10px; border-radius:8px; margin-bottom:8px;">
+      <div style="background:#f8f9fa; border:1px solid #ced4da; padding:8px 10px; border-radius:8px; margin-bottom:8px;">
         <div style="display:flex; justify-content:space-between;">
-          <strong style="color:#38bdf8;">${m.metodo}</strong>
-          <span style="font-size:11px; color:#64748b;">${m.timestamp}</span>
+          <strong style="color:var(--accent-primary);">${m.metodo}</strong>
+          <span style="font-size:11px; color:var(--text-secondary);">${m.timestamp}</span>
         </div>
         <div>Para: <strong>${m.to}</strong></div>
-        <div style="margin-top:4px;">Código Verificación 2FA: <strong style="color:#34d399; font-size:14px; letter-spacing:2px;">${m.codigo}</strong></div>
+        <div style="margin-top:4px;">Código de Verificación: <strong style="color:var(--accent-primary); font-size:14px; letter-spacing:2px;">${m.codigo}</strong></div>
       </div>
     `).join('');
   } catch (_) {}
@@ -317,18 +318,21 @@ async function reloadCurrentUserProfile() {
 
     // Resumen de estadísticas
     document.getElementById('stat-roles').textContent = currentUser.roleNames.join(', ');
-    document.getElementById('stat-perms-count').textContent = currentUser.permissions.length;
+    const statPermsEl = document.getElementById('stat-perms-count');
+    if (statPermsEl) statPermsEl.textContent = currentUser.permissions.length;
     document.getElementById('stat-user-rfc').textContent = currentUser.rfc;
-    document.getElementById('stat-user-2fa').textContent = currentUser.totp_enabled ? 'ACTIVO (TOTP)' : 'Opcional';
+    document.getElementById('stat-user-2fa').textContent = currentUser.totp_enabled ? 'Activado' : 'Desactivado';
 
     // Insignias de permisos efectivos
     const badgesContainer = document.getElementById('user-permissions-badges');
-    badgesContainer.innerHTML = currentUser.permissionDetails.map(p => {
-      let cls = 'perm-lectura';
-      if (p.accion === 'Escritura') cls = 'perm-escritura';
-      if (p.accion === 'Eliminación') cls = 'perm-eliminacion';
-      return `<span class="perm-badge ${cls}">${p.area}: <strong>${p.accion}</strong> (${p.codigo})</span>`;
-    }).join('');
+    if (badgesContainer) {
+      badgesContainer.innerHTML = currentUser.permissionDetails.map(p => {
+        let cls = 'perm-lectura';
+        if (p.accion === 'Escritura') cls = 'perm-escritura';
+        if (p.accion === 'Eliminación') cls = 'perm-eliminacion';
+        return `<span class="perm-badge ${cls}">${p.area}: <strong>${p.accion}</strong> (${p.codigo})</span>`;
+      }).join('');
+    }
 
     // Poblar formulario Mi Perfil y 2FA
     document.getElementById('prof-nombre').value = currentUser.nombre;
@@ -394,17 +398,17 @@ async function loadDocumentos() {
           <div>
             <span class="role-badge">${doc.clasificacion}</span>
             <span style="font-size:12px; color:var(--text-secondary);">${doc.categoria} • Autor: ${doc.autor_nombre} • ${doc.created_at}</span>
-            <h3 style="font-size:16px; margin-top:6px; color:#f8fafc;">${doc.titulo}</h3>
+            <h3 style="font-size:16px; margin-top:6px; color:var(--text-primary);">${doc.titulo}</h3>
           </div>
           <div style="display:flex; gap:6px;">
             ${canWrite ? `<button class="btn btn-secondary btn-sm" onclick='editDoc(${JSON.stringify(doc).replace(/'/g, "&#39;")})'>Editar</button>` : ''}
             ${canDelete ? `<button class="btn btn-danger btn-sm" onclick="deleteDoc(${doc.id})">Eliminar</button>` : ''}
           </div>
         </div>
-        <p style="font-size:13.5px; color:#cbd5e1; margin-top:10px;">${doc.contenido}</p>
+        <p style="font-size:13.5px; color:var(--text-secondary); margin-top:10px;">${doc.contenido}</p>
         ${doc.notas_confidenciales ? `
-          <div style="margin-top:12px; padding:8px 12px; background:#090d16; border:1px solid #1e293b; border-radius:8px; font-size:12px;">
-            <strong style="color:#34d399;">Nota Confidencial (Desencriptada AES-256-GCM):</strong> ${doc.notas_confidenciales}
+          <div style="margin-top:12px; padding:8px 12px; background:var(--bg-input); border:1px solid var(--border-color); border-radius:8px; font-size:12px;">
+            <strong style="color:var(--text-primary);">Nota Confidencial:</strong> ${doc.notas_confidenciales}
           </div>
         ` : ''}
       </div>
@@ -499,7 +503,7 @@ async function loadClientes() {
         <td>
           ${showCiphertextClientes
             ? `<span class="cipher-code">${c.rfc_encrypted}</span>`
-            : `<strong style="color:#34d399;">${c.rfc}</strong>`
+            : `<strong>${c.rfc}</strong>`
           }
         </td>
         <td>
@@ -511,12 +515,12 @@ async function loadClientes() {
         <td>
           ${showCiphertextClientes
             ? `<span class="cipher-code">${c.contrato_monto_encrypted}</span>`
-            : `<div>${c.telefono}</div><strong style="color:#38bdf8;">${c.contrato_monto}</strong>`
+            : `<div>${c.telefono}</div><strong>${c.contrato_monto}</strong>`
           }
         </td>
         <td>
           <div style="display:flex; gap:6px;">
-            ${canWrite ? `<button class="btn btn-secondary btn-sm" onclick='editCliente(${JSON.stringify(c).replace(/'/g, "&#39;")})'>Editar</button>` : '<span style="font-size:11px; color:#64748b;">Solo lectura</span>'}
+            ${canWrite ? `<button class="btn btn-secondary btn-sm" onclick='editCliente(${JSON.stringify(c).replace(/'/g, "&#39;")})'>Editar</button>` : '<span style="font-size:11px; color:var(--text-muted);">Solo lectura</span>'}
             ${canDelete ? `<button class="btn btn-danger btn-sm" onclick="deleteCliente(${c.id})">Eliminar</button>` : ''}
           </div>
         </td>
@@ -620,10 +624,10 @@ async function loadAdminUsers() {
         <tr>
           <td>
             <strong>#${u.id} - ${u.nombre}</strong><br/>
-            <span style="font-size:12px; color:#38bdf8;">${u.email}</span>
+            <span style="font-size:12px; color:var(--accent-primary);">${u.email}</span>
           </td>
           <td>
-            <div>RFC: <strong style="color:#34d399;">${u.rfc}</strong></div>
+            <div>RFC: <strong>${u.rfc}</strong></div>
             <div style="font-size:12px; color:var(--text-secondary);">${u.direccion}</div>
           </td>
           <td>${roleCheckboxes}</td>
@@ -717,7 +721,7 @@ async function loadAdminRoles() {
         <div class="card">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
             <div>
-              <h3 style="font-size:16px; color:#38bdf8;">${role.nombre}</h3>
+              <h3 style="font-size:16px; color:var(--text-primary);">${role.nombre}</h3>
               <span style="font-size:11px; color:var(--text-secondary);">
                 ${role.is_system ? 'Rol Predeterminado del Sistema' : 'Rol Personalizado'} • ${role.userCount} usuario(s)
               </span>
@@ -727,7 +731,7 @@ async function loadAdminRoles() {
           <p style="font-size:12.5px; color:var(--text-secondary); margin-bottom:12px;">${role.descripcion}</p>
           ${areaBlocks}
           <button class="btn btn-success btn-block" onclick="saveRolePermissions(${role.id})">
-            Guardar Permisos de "${role.nombre}"
+            Guardar Permisos
           </button>
         </div>
       `;
@@ -809,16 +813,16 @@ async function loadAuditAndAccessLogs() {
           <span class="role-badge">${log.rol_activo}</span>
         </td>
         <td>${log.area}</td>
-        <td><strong style="color:#38bdf8;">${log.accion}</strong></td>
+        <td><strong>${log.accion}</strong></td>
         <td>${log.descripcion}</td>
         <td><code>${log.ip_address}</code></td>
       </tr>
     `).join('');
 
     document.getElementById('access-logs-tbody').innerHTML = res.accessLogs.map(acc => {
-      let badgeColor = '#34d399';
+      let badgeColor = 'var(--success)';
       if (acc.evento.includes('FAILED') || acc.evento.includes('DENIED') || acc.evento.includes('BLOCKED')) {
-        badgeColor = '#f87171';
+        badgeColor = 'var(--danger)';
       }
       return `
         <tr>
@@ -839,11 +843,11 @@ async function loadAuditAndAccessLogs() {
         </td>
         <td><span class="cipher-code">${u.password_hash}</span></td>
         <td>
-          <div style="font-size:11px; color:#94a3b8;">Desencriptado: <strong style="color:#fff;">${u.rfc_decrypted}</strong></div>
+          <div style="font-size:11px; color:var(--text-secondary);">Desencriptado: <strong style="color:var(--text-primary);">${u.rfc_decrypted}</strong></div>
           <span class="cipher-code">${u.rfc_encrypted}</span>
         </td>
         <td>
-          <div style="font-size:11px; color:#94a3b8;">Desencriptado: <strong style="color:#fff;">${u.direccion_decrypted}</strong></div>
+          <div style="font-size:11px; color:var(--text-secondary);">Desencriptado: <strong style="color:var(--text-primary);">${u.direccion_decrypted}</strong></div>
           <span class="cipher-code">${u.direccion_encrypted}</span>
         </td>
       </tr>
@@ -875,9 +879,9 @@ async function loadBackups() {
     document.getElementById('backups-tbody').innerHTML = res.backups.map(b => `
       <tr>
         <td style="white-space:nowrap;">${b.created_at}</td>
-        <td><strong>${b.filename}</strong><br/><span style="font-size:11px; color:#34d399;">AES-256-GCM (${b.size_bytes} bytes)</span></td>
+        <td><strong>${b.filename}</strong><br/><span style="font-size:11px; color:var(--text-secondary);">${b.size_bytes} bytes</span></td>
         <td><span class="role-badge">${b.tipo}</span></td>
-        <td><code style="font-size:11.5px; color:#38bdf8;">${b.external_path}</code><br/><span style="font-size:11px; color:var(--text-secondary);">${b.estado}</span></td>
+        <td><code style="font-size:11.5px;">${b.external_path}</code><br/><span style="font-size:11px; color:var(--text-secondary);">${b.estado}</span></td>
         <td><span class="cipher-code">${b.sha256_hash.slice(0, 28)}...</span></td>
         <td>
           <a class="btn btn-secondary btn-sm" href="/api/admin/backups/${b.id}/download?token=${authToken}" target="_blank">Descargar</a>
